@@ -5,10 +5,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/joefazee/todo-app"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/vincekirkov/todoapp/todo"
 )
 
 const (
@@ -46,6 +47,8 @@ func main() {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+		fmt.Println(task, "added succesfully")
+		todos.Print()
 	case *complete > 0:
 		err := todos.Complete(*complete)
 		if err != nil {
@@ -57,6 +60,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+		todos.Print()
 	case *del > 0:
 		err := todos.Delete(*del)
 		if err != nil {
@@ -68,10 +72,11 @@ func main() {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+		todos.Print()
 	case *list:
 		todos.Print()
 	default:
-		fmt.Fprintln(os.Stdout, "invalid command")
+		flag.PrintDefaults()
 		os.Exit(0)
 	}
 
@@ -82,7 +87,7 @@ func getInput(r io.Reader, args ...string) (string, error) {
 	if len(args) > 0 {
 		return strings.Join(args, " "), nil
 	}
-
+	fmt.Println("Please input task name:")
 	scanner := bufio.NewScanner(r)
 	scanner.Scan()
 	if err := scanner.Err(); err != nil {
@@ -93,6 +98,7 @@ func getInput(r io.Reader, args ...string) (string, error) {
 
 	if len(text) == 0 {
 		return "", errors.New("empty todo is not allowed")
+
 	}
 
 	return text, nil

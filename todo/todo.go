@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/alexeyco/simpletable"
 	"io/ioutil"
 	"os"
 	"time"
+
+	"github.com/alexeyco/simpletable"
 )
 
 type item struct {
@@ -93,8 +94,8 @@ func (t *Todos) Print() {
 			{Align: simpletable.AlignCenter, Text: "#"},
 			{Align: simpletable.AlignCenter, Text: "Task"},
 			{Align: simpletable.AlignCenter, Text: "Done?"},
-			{Align: simpletable.AlignRight, Text: "CreatedAt"},
-			{Align: simpletable.AlignRight, Text: "CompletedAt"},
+			{Align: simpletable.AlignRight, Text: "Created At"},
+			{Align: simpletable.AlignRight, Text: "Completed At"},
 		},
 	}
 
@@ -107,20 +108,28 @@ func (t *Todos) Print() {
 		if item.Done {
 			task = green(fmt.Sprintf("\u2705 %s", item.Task))
 			done = green("yes")
+			cells = append(cells, *&[]*simpletable.Cell{
+				{Text: fmt.Sprintf("%d", idx)},
+				{Text: task},
+				{Text: done},
+				{Text: item.CreatedAt.Format(time.RFC822)},
+				{Text: item.CompletedAt.Format(time.RFC822)},
+			})
+		} else {
+			cells = append(cells, *&[]*simpletable.Cell{
+				{Text: fmt.Sprintf("%d", idx)},
+				{Text: task},
+				{Text: done},
+				{Text: item.CreatedAt.Format(time.RFC822)},
+				{Text: "N/A"},
+			})
 		}
-		cells = append(cells, *&[]*simpletable.Cell{
-			{Text: fmt.Sprintf("%d", idx)},
-			{Text: task},
-			{Text: done},
-			{Text: item.CreatedAt.Format(time.RFC822)},
-			{Text: item.CompletedAt.Format(time.RFC822)},
-		})
 	}
 
 	table.Body = &simpletable.Body{Cells: cells}
 
 	table.Footer = &simpletable.Footer{Cells: []*simpletable.Cell{
-		{Align: simpletable.AlignCenter, Span: 5, Text: red(fmt.Sprintf("You have %d pending todos", t.CountPending()))},
+		{Align: simpletable.AlignCenter, Span: 5, Text: red(fmt.Sprintf("You have %d pending tasks", t.CountPending()))},
 	}}
 
 	table.SetStyle(simpletable.StyleUnicode)
